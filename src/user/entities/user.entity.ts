@@ -7,7 +7,7 @@ export class User {
   @Exclude()
   password: string;
 
-  version: number; // integer number, increments on update
+  version: number; // integer number, increments on updatep
   createdAt: number; // timestamp of creation
   updatedAt: number; // timestamp of last update
 }
