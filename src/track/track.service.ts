@@ -48,4 +48,19 @@ export class TrackService {
     this.tracks.splice(trackIndex, 1);
     return true;
   }
+
+  setArtistIdToNull(artistId: string) {
+    this.tracks.forEach((track) => {
+      if (track.artistId === artistId) {
+        track.artistId = null;
+      }
+    });
+  }
+  setAlbumIdToNull(albumId: string) {
+    this.tracks.forEach((track) => {
+      if (track.albumId === albumId) {
+        track.albumId = null;
+      }
+    });
+  }
 }
