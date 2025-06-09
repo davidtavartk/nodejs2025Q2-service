@@ -1,7 +1,19 @@
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity('tracks')
 export class Track {
-  id: string; // uuid v4
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
   name: string;
-  artistId: string | null; // refers to Artist
-  albumId: string | null; // refers to Album
-  duration: number; // integer number
+
+  @Column({ type: 'uuid', nullable: true })
+  artistId: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  albumId: string | null;
+
+  @Column({ type: 'int' })
+  duration: number;
 }
