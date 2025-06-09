@@ -8,6 +8,7 @@ import { TrackService } from '../track/track.service';
 @Injectable()
 export class FavoritesService {
   private favorites: Favorites = {
+    id: 'default-favorites',
     artists: [],
     albums: [],
     tracks: [],
