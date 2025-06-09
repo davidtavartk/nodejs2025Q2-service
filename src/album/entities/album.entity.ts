@@ -1,6 +1,16 @@
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity('albums')
 export class Album {
-  id: string; // uuid v4
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
   name: string;
+
+  @Column({ type: 'int' })
   year: number;
-  artistId: string | null; // refers to Artist
+
+  @Column({ type: 'uuid', nullable: true })
+  artistId: string | null;
 }
