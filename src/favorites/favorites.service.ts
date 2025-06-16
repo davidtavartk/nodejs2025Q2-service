@@ -6,16 +6,36 @@ import { FavoritesResponse } from './dto/favorites-response.dto';
 import { ArtistService } from '../artist/artist.service';
 import { AlbumService } from '../album/album.service';
 import { TrackService } from '../track/track.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class FavoritesService {
+  private dummyUserId: string | null = null;
+
   constructor(
     @InjectRepository(Favorites)
     private favoritesRepository: Repository<Favorites>,
     private artistService: ArtistService,
     private albumService: AlbumService,
     private trackService: TrackService,
+    private userService: UserService,
   ) {}
+
+  private async getDummyUserId(): Promise<string> {
+    if (this.dummyUserId) return this.dummyUserId;
+
+    let dummyUser = await this.userService.getUserByIdRaw(
+      '00000000-0000-0000-0000-000000000000',
+    );
+    if (!dummyUser) {
+      dummyUser = await this.userService.createRaw({
+        login: 'dummy-user',
+        password: 'dummy-password',
+      });
+    }
+    this.dummyUserId = dummyUser.id;
+    return this.dummyUserId;
+  }
 
   async getAllFavorites(): Promise<FavoritesResponse> {
     const favorites = await this.favoritesRepository.find({
@@ -41,14 +61,16 @@ export class FavoritesService {
     const track = await this.trackService.getTrackById(trackId);
     if (!track) return false;
 
+    const userId = await this.getDummyUserId();
+
     const existing = await this.favoritesRepository.findOne({
-      where: { trackId, userId: 'default-user' }, // For now using default user
+      where: { trackId, userId },
     });
 
     if (!existing) {
       const favorite = this.favoritesRepository.create({
         trackId,
-        userId: 'default-user',
+        userId,
       });
       await this.favoritesRepository.save(favorite);
     }
@@ -56,9 +78,10 @@ export class FavoritesService {
   }
 
   async removeTrackFromFavorites(trackId: string): Promise<boolean> {
+    const userId = await this.getDummyUserId();
     const result = await this.favoritesRepository.delete({
       trackId,
-      userId: 'default-user',
+      userId,
     });
     return result.affected > 0;
   }
@@ -67,14 +90,16 @@ export class FavoritesService {
     const album = await this.albumService.getAlbumById(albumId);
     if (!album) return false;
 
+    const userId = await this.getDummyUserId();
+
     const existing = await this.favoritesRepository.findOne({
-      where: { albumId, userId: 'default-user' },
+      where: { albumId, userId },
     });
 
     if (!existing) {
       const favorite = this.favoritesRepository.create({
         albumId,
-        userId: 'default-user',
+        userId,
       });
       await this.favoritesRepository.save(favorite);
     }
@@ -82,9 +107,10 @@ export class FavoritesService {
   }
 
   async removeAlbumFromFavorites(albumId: string): Promise<boolean> {
+    const userId = await this.getDummyUserId();
     const result = await this.favoritesRepository.delete({
       albumId,
-      userId: 'default-user',
+      userId,
     });
     return result.affected > 0;
   }
@@ -93,14 +119,16 @@ export class FavoritesService {
     const artist = await this.artistService.getArtistById(artistId);
     if (!artist) return false;
 
+    const userId = await this.getDummyUserId();
+
     const existing = await this.favoritesRepository.findOne({
-      where: { artistId, userId: 'default-user' },
+      where: { artistId, userId },
     });
 
     if (!existing) {
       const favorite = this.favoritesRepository.create({
         artistId,
-        userId: 'default-user',
+        userId,
       });
       await this.favoritesRepository.save(favorite);
     }
@@ -108,9 +136,10 @@ export class FavoritesService {
   }
 
   async removeArtistFromFavorites(artistId: string): Promise<boolean> {
+    const userId = await this.getDummyUserId();
     const result = await this.favoritesRepository.delete({
       artistId,
-      userId: 'default-user',
+      userId,
     });
     return result.affected > 0;
   }

@@ -15,27 +15,50 @@ export class UserService {
 
   async getAllUsers() {
     const users = await this.userRepository.find();
-    return users.map((user) => instanceToPlain(user));
+    return users.map((user) => ({
+      ...instanceToPlain(user),
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    }));
   }
 
   async getUserById(id: string) {
     const user = await this.userRepository.findOne({ where: { id } });
-    return user ? instanceToPlain(user) : null;
+    if (!user) return null;
+    return {
+      ...instanceToPlain(user),
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    };
+  }
+
+  async getUserByIdRaw(id: string) {
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   async create(createUserDto: CreateUserDto) {
-    const now = Date.now();
-
     const newUser = this.userRepository.create({
       login: createUserDto.login,
       password: createUserDto.password,
       version: 1,
-      createdAt: now,
-      updatedAt: now,
     });
 
     const savedUser = await this.userRepository.save(newUser);
-    return instanceToPlain(savedUser);
+    return {
+      ...instanceToPlain(savedUser),
+      createdAt: savedUser.createdAt.getTime(),
+      updatedAt: savedUser.updatedAt.getTime(),
+    };
+  }
+
+  async createRaw(createUserDto: CreateUserDto) {
+    const newUser = this.userRepository.create({
+      login: createUserDto.login,
+      password: createUserDto.password,
+      version: 1,
+    });
+
+    return await this.userRepository.save(newUser);
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
@@ -48,10 +71,13 @@ export class UserService {
 
     user.password = updatePasswordDto.newPassword;
     user.version = user.version + 1;
-    user.updatedAt = Date.now();
 
     const updatedUser = await this.userRepository.save(user);
-    return instanceToPlain(updatedUser);
+    return {
+      ...instanceToPlain(updatedUser),
+      createdAt: updatedUser.createdAt.getTime(),
+      updatedAt: updatedUser.updatedAt.getTime(),
+    };
   }
 
   async remove(id: string) {
