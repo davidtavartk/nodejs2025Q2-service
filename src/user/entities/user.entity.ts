@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Favorites } from 'src/favorites/entities/favorites.entity';
 
 @Entity('users')
 export class User {
@@ -22,9 +24,18 @@ export class User {
   @Column({ default: 1 })
   version: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'bigint',
+    transformer: { to: (value) => value, from: (value) => parseInt(value) },
+  })
   createdAt: number;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'bigint',
+    transformer: { to: (value) => value, from: (value) => parseInt(value) },
+  })
   updatedAt: number;
+
+  @OneToMany(() => Favorites, (favorite) => favorite.user, { cascade: true })
+  favorites: Favorites[];
 }
