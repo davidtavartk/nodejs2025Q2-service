@@ -13,6 +13,7 @@ import { Artist } from './artist/entities/artist.entity';
 import { Album } from './album/entities/album.entity';
 import { Track } from './track/entities/track.entity';
 import { Favorites } from './favorites/entities/favorites.entity';
+import { LoggingService } from './common/logging/logging.service';
 
 @Module({
   imports: [
@@ -42,6 +43,6 @@ import { Favorites } from './favorites/entities/favorites.entity';
     FavoritesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, LoggingService],
 })
 export class AppModule {}
