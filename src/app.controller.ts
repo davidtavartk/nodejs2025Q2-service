@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LoggingService } from './common/logging/logging.service';
 
@@ -12,18 +12,20 @@ export class AppController {
   @Get()
   getHello(): string {
     this.loggingService.log('Hello endpoint accessed', 'AppController');
-    this.loggingService.debug('Debug message test', 'AppController');
-    this.loggingService.warn('Warning message test', 'AppController');
     return this.appService.getHello();
   }
 
-  @Get('test-error')
-  testError(): string {
-    throw new HttpException('This is a test error', HttpStatus.BAD_REQUEST);
+  @Get('test-uncaught')
+  testUncaught(): string {
+    setTimeout(() => {
+      throw new Error('Uncaught exception test');
+    }, 100);
+    return 'Check logs in 100ms';
   }
 
-  @Get('test-500')
-  test500(): string {
-    throw new Error('Unexpected error for testing');
+  @Get('test-rejection')
+  testRejection(): string {
+    Promise.reject(new Error('Unhandled rejection test'));
+    return 'Check logs for unhandled rejection';
   }
 }

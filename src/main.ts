@@ -10,6 +10,23 @@ async function bootstrap() {
 
   const loggingService = app.get(LoggingService);
 
+  process.on('uncaughtException', (error: Error) => {
+    loggingService.error(
+      `Uncaught Exception: ${error.message}`,
+      error.stack,
+      'Process',
+    );
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    loggingService.error(
+      `Unhandled Rejection at Promise: ${promise} - Reason: ${reason}`,
+      reason?.stack,
+      'Process',
+    );
+  });
+
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter(loggingService));
   app.useGlobalInterceptors(new LoggingInterceptor(loggingService));
