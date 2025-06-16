@@ -13,6 +13,6 @@ export const databaseConfig: TypeOrmModuleOptions = {
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'music_library',
   entities: [User, Artist, Album, Track, Favorites],
-  synchronize: true, // Only for development
+  synchronize: true,
   logging: false,
 };

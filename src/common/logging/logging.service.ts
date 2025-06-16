@@ -43,12 +43,4 @@ export class LoggingService {
       );
     }
   }
-
-  verbose(message: string, context?: string) {
-    if (this.shouldLog('verbose')) {
-      console.log(
-        `[VERBOSE] ${new Date().toISOString()} ${context ? `[${context}]` : ''} ${message}`,
-      );
-    }
-  }
 }

@@ -24,14 +24,12 @@ export class FavoritesService {
   private async getDummyUserId(): Promise<string> {
     if (this.dummyUserId) return this.dummyUserId;
 
-    // Try to find existing dummy user first
     const existingUser = await this.userService.getUserByLoginRaw('dummy-user');
     if (existingUser) {
       this.dummyUserId = existingUser.id;
       return this.dummyUserId;
     }
 
-    // Only create if doesn't exist
     const dummyUser = await this.userService.createRaw({
       login: 'dummy-user',
       password: 'dummy-password',

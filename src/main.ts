@@ -8,6 +8,11 @@ import { LoggingService } from './common/logging/logging.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // app.use('/doc', (req, res, next) => {
+  //   req.isPublic = true;
+  //   next();
+  // });
+
   const loggingService = app.get(LoggingService);
 
   process.on('uncaughtException', (error: Error) => {

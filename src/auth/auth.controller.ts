@@ -1,17 +1,11 @@
-import {
-  Controller,
-  Post,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { Public } from './public.decorator';
+// import { Public } from './public.decorator';
+import { RefreshDto } from './dto/refresh.dto';
 
-@Public()
+// @Public()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -22,17 +16,12 @@ export class AuthController {
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @Post('refresh')
-  @HttpCode(HttpStatus.OK)
-  async refresh(@Body() body: { refreshToken?: string }) {
-    if (!body.refreshToken) {
-      throw new UnauthorizedException();
-    }
-    return this.authService.refresh(body.refreshToken);
+  async refresh(@Body() refreshDto: RefreshDto) {
+    return this.authService.refresh(refreshDto);
   }
 }
