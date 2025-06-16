@@ -15,6 +15,9 @@ import { Track } from './track/entities/track.entity';
 import { Favorites } from './favorites/entities/favorites.entity';
 import { LoggingService } from './common/logging/logging.service';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -43,8 +46,16 @@ import { AuthModule } from './auth/auth.module';
     AlbumModule,
     FavoritesModule,
     AuthModule,
+    JwtModule.register({}),
   ],
   controllers: [AppController],
-  providers: [AppService, LoggingService],
+  providers: [
+    AppService,
+    LoggingService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
