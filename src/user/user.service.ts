@@ -84,4 +84,8 @@ export class UserService {
     const result = await this.userRepository.delete(id);
     return result.affected > 0;
   }
+
+  async getUserByLoginRaw(login: string) {
+    return await this.userRepository.findOne({ where: { login } });
+  }
 }

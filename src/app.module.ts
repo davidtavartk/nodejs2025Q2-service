@@ -14,6 +14,7 @@ import { Album } from './album/entities/album.entity';
 import { Track } from './track/entities/track.entity';
 import { Favorites } from './favorites/entities/favorites.entity';
 import { LoggingService } from './common/logging/logging.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LoggingService } from './common/logging/logging.service';
     ArtistModule,
     AlbumModule,
     FavoritesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, LoggingService],
