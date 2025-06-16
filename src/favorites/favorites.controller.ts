@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { FavoritesService } from './favorites.service';
+import { Public } from 'src/auth/public.decorator';
 
+@Public()
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
