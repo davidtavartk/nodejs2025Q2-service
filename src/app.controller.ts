@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LoggingService } from './common/logging/logging.service';
+import { Public } from './auth/public.decorator';
 
 @Controller()
 export class AppController {
@@ -9,6 +10,7 @@ export class AppController {
     private readonly loggingService: LoggingService,
   ) {}
 
+  @Public()
   @Get()
   getHello(): string {
     this.loggingService.log('Hello endpoint accessed', 'AppController');
