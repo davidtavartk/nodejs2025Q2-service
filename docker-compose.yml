@@ -1,55 +1,38 @@
-services:
-  postgres:
-    build:
-      context: .
-      dockerfile: Dockerfile.postgres
-    environment:
-      POSTGRES_DB: ${DB_NAME:-music_library}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    networks:
-      - music_network
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - postgres_logs:/var/log/postgresql
+version: '3.8'
 
+services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    environment:
-      DB_HOST: postgres
-      DB_PORT: ${DB_PORT:-5432}
-      DB_NAME: ${DB_NAME:-music_library}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      NODE_ENV: ${NODE_ENV:-development}
-      PORT: ${PORT:-4000}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      JWT_SECRET_REFRESH_KEY: ${JWT_SECRET_REFRESH_KEY}
+    build: .
     ports:
-      - "${PORT:-4000}:4000"
+      - "4000:4000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=music_library
     depends_on:
       - postgres
-    networks:
-      - music_network
-    restart: unless-stopped
     volumes:
-      - app_logs:/usr/src/app/logs
-      - ./src:/usr/src/app/src
+      - ./src:/app/src
+    restart: unless-stopped
 
-networks:
-  music_network:
-    driver: bridge
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: music_library
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./logs:/var/log
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
 
 volumes:
   postgres_data:
-    driver: local
-  postgres_logs:
-    driver: local
-  app_logs:
-    driver: local
+
+networks:
+  default:
+    name: music_library_network

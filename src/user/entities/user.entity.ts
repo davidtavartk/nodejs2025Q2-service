@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Favorites } from '../../favorites/entities/favorites.entity';
 
 @Entity('users')
 export class User {
@@ -22,9 +24,12 @@ export class User {
   @Column({ default: 1 })
   version: number;
 
-  @CreateDateColumn()
-  createdAt: number;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: number;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
+
+  @OneToMany(() => Favorites, (favorite) => favorite.user, { cascade: true })
+  favorites: Favorites[];
 }

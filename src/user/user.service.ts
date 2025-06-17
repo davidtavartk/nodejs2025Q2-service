@@ -1,40 +1,68 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
-import { randomUUID } from 'node:crypto';
 import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
 
   async getAllUsers() {
-    return this.users;
+    const users = await this.userRepository.find();
+    return users.map((user) => ({
+      ...instanceToPlain(user),
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    }));
   }
 
   async getUserById(id: string) {
-    const user = this.users.find((user) => user.id === id);
-    return instanceToPlain(user);
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return null;
+    return {
+      ...instanceToPlain(user),
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    };
+  }
+
+  async getUserByIdRaw(id: string) {
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   async create(createUserDto: CreateUserDto) {
-    const now = Date.now();
+    const newUser = this.userRepository.create({
+      login: createUserDto.login,
+      password: createUserDto.password,
+      version: 1,
+    });
 
-    const newUser = new User();
-    newUser.id = randomUUID();
-    newUser.login = createUserDto.login;
-    newUser.password = createUserDto.password;
-    newUser.version = 1;
-    newUser.createdAt = now;
-    newUser.updatedAt = now;
+    const savedUser = await this.userRepository.save(newUser);
+    return {
+      ...instanceToPlain(savedUser),
+      createdAt: savedUser.createdAt.getTime(),
+      updatedAt: savedUser.updatedAt.getTime(),
+    };
+  }
 
-    this.users.push(newUser);
-    return instanceToPlain(newUser);
+  async createRaw(createUserDto: CreateUserDto) {
+    const newUser = this.userRepository.create({
+      login: createUserDto.login,
+      password: createUserDto.password,
+      version: 1,
+    });
+
+    return await this.userRepository.save(newUser);
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
-    const user = this.users.find((u) => u.id === id);
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return null;
 
     if (user.password !== updatePasswordDto.oldPassword) {
@@ -43,16 +71,21 @@ export class UserService {
 
     user.password = updatePasswordDto.newPassword;
     user.version = user.version + 1;
-    user.updatedAt = Date.now();
 
-    return instanceToPlain(user);
+    const updatedUser = await this.userRepository.save(user);
+    return {
+      ...instanceToPlain(updatedUser),
+      createdAt: updatedUser.createdAt.getTime(),
+      updatedAt: updatedUser.updatedAt.getTime(),
+    };
   }
 
   async remove(id: string) {
-    const userIndex = this.users.findIndex((u) => u.id === id);
-    if (userIndex === -1) return false;
+    const result = await this.userRepository.delete(id);
+    return result.affected > 0;
+  }
 
-    this.users.splice(userIndex, 1);
-    return true;
+  async getUserByLoginRaw(login: string) {
+    return await this.userRepository.findOne({ where: { login } });
   }
 }

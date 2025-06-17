@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Album } from './entities/album.entity';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -7,56 +8,45 @@ import { TrackService } from 'src/track/track.service';
 
 @Injectable()
 export class AlbumService {
-  private albums: Album[] = [];
-
   constructor(
-    @Inject(forwardRef(() => TrackService)) private trackService: TrackService,
+    @InjectRepository(Album)
+    private albumRepository: Repository<Album>,
+    @Inject(forwardRef(() => TrackService))
+    private trackService: TrackService,
   ) {}
 
   async getAllAlbums() {
-    return this.albums;
+    return await this.albumRepository.find();
   }
 
   async getAlbumById(id: string) {
-    return this.albums.find((album) => album.id === id) || null;
+    return await this.albumRepository.findOne({ where: { id } });
   }
 
   async create(createAlbumDto: CreateAlbumDto) {
-    const newAlbum = new Album();
-    newAlbum.id = randomUUID();
-    newAlbum.name = createAlbumDto.name;
-    newAlbum.year = createAlbumDto.year;
-    newAlbum.artistId = createAlbumDto.artistId;
-
-    this.albums.push(newAlbum);
-    return newAlbum;
+    const newAlbum = this.albumRepository.create(createAlbumDto);
+    return await this.albumRepository.save(newAlbum);
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const album = this.albums.find((a) => a.id === id);
+    const album = await this.albumRepository.findOne({ where: { id } });
     if (!album) return null;
 
-    album.name = updateAlbumDto.name;
-    album.year = updateAlbumDto.year;
-    album.artistId = updateAlbumDto.artistId;
-
-    return album;
+    await this.albumRepository.update(id, updateAlbumDto);
+    return await this.albumRepository.findOne({ where: { id } });
   }
 
   async remove(id: string) {
-    const albumIndex = this.albums.findIndex((a) => a.id === id);
-    if (albumIndex === -1) return false;
+    const album = await this.albumRepository.findOne({ where: { id } });
+    if (!album) return false;
 
-    this.trackService.setAlbumIdToNull(id);
+    await this.trackService.setAlbumIdToNull(id);
 
-    this.albums.splice(albumIndex, 1);
-    return true;
+    const result = await this.albumRepository.delete(id);
+    return result.affected > 0;
   }
-  setArtistIdToNull(artistId: string) {
-    this.albums.forEach((album) => {
-      if (album.artistId === artistId) {
-        album.artistId = null;
-      }
-    });
+
+  async setArtistIdToNull(artistId: string) {
+    await this.albumRepository.update({ artistId }, { artistId: null });
   }
 }
