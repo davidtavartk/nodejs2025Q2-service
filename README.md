@@ -12,9 +12,9 @@ Using Docker Compose
 
 Clone the repository and navigate to the project directory
 Start the application:
-bashdocker-compose up
+bash docker-compose up
 Or to run in detached mode:
-bashdocker-compose up -d
+bash docker-compose up -d
 
 The application will be available at:
 
@@ -23,7 +23,7 @@ OpenAPI documentation: http://localhost:4000/doc
 
 
 To stop the application:
-bashdocker-compose down
+bash docker-compose down
 
 
 Using Pre-built Images from Docker Hub
@@ -37,7 +37,9 @@ docker-compose up
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/davidtavartk/nodejs2025Q2-service.git
+
+git checkout development3
 ```
 
 ## Installing NPM modules
